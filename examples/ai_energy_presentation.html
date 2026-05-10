@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>算电协同：AI竞争的下半场，拼的不是显卡是电厂</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,700;9..144,900&family=Work+Sans:wght@300;400;600;700&display=swap" rel="stylesheet" />
+<style>
+/* ===========================================
+   CSS CUSTOM PROPERTIES (THEME)
+   政策解读 + 科技感混合 — 白底深青金重点
+   =========================================== */
+:root {
+  --bg-primary: #faf9f7;
+  --bg-white: #ffffff;
+  --bg-teal: #004d40;
+  --bg-dark: #0a1628;
+  --text-primary: #1a1a1a;
+  --text-secondary: #555555;
+  --text-light: #ffffff;
+  --accent-gold: #c8a44e;
+  --accent-gold-glow: rgba(200, 164, 78, 0.25);
+  --accent-teal: #004d40;
+  --accent-teal-light: #00695c;
+  --data-blue: #0a1628;
+  --warn-red: #c0392b;
+  --border-subtle: #e0dcd5;
+
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body: "Work Sans", system-ui, sans-serif;
+  --title-size: clamp(1.8rem, 4.5vw, 3.6rem);
+  --subtitle-size: clamp(0.9rem, 1.8vw, 1.35rem);
+  --h2-size: clamp(1.4rem, 3.2vw, 2.4rem);
+  --h3-size: clamp(1rem, 2vw, 1.5rem);
+  --body-size: clamp(0.8rem, 1.3vw, 1.05rem);
+  --small-size: clamp(0.65rem, 0.9vw, 0.85rem);
+  --slide-padding: clamp(1.5rem, 4vw, 4rem);
+  --content-gap: clamp(0.8rem, 1.8vw, 1.8rem);
+  --element-gap: clamp(0.4rem, 0.8vw, 0.8rem);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration: 0.7s;
+}
+
+/* ===========================================
+   VIEWPORT FITTING: MANDATORY BASE STYLES
+   =========================================== */
+html, body {
+  height: 100%;
+  overflow-x: hidden;
+}
+html {
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+}
+.slide {
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+.slide-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-height: 100%;
+  overflow: hidden;
+  padding: var(--slide-padding);
+}
+.card, .container, .content-box {
+  max-width: min(90vw, 1000px);
+  max-height: min(80vh, 700px);
+}
+.feature-list, .bullet-list {
+  gap: clamp(0.4rem, 1vh, 1rem);
+}
+.feature-list li, .bullet-list li {
+  font-size: var(--body-size);
+  line-height: 1.4;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+  gap: clamp(0.5rem, 1.5vw, 1rem);
+}
+img, .image-container {
+  max-width: 100%;
+  max-height: min(50vh, 400px);
+  object-fit: contain;
+}
+
+@media (max-height: 700px) {
+  :root {
+    --slide-padding: clamp(0.75rem, 3vw, 2rem);
+    --content-gap: clamp(0.4rem, 1.5vw, 1rem);
+    --title-size: clamp(1.4rem, 4vw, 2.2rem);
+    --h2-size: clamp(1.1rem, 2.8vw, 1.8rem);
+  }
+}
+@media (max-height: 600px) {
+  :root {
+    --slide-padding: clamp(0.5rem, 2.5vw, 1.5rem);
+    --content-gap: clamp(0.3rem, 1vw, 0.75rem);
+    --title-size: clamp(1.1rem, 3.5vw, 1.8rem);
+    --body-size: clamp(0.7rem, 1.2vw, 0.95rem);
+  }
+  .nav-dots, .keyboard-hint { display: none; }
+}
+@media (max-height: 500px) {
+  :root {
+    --slide-padding: clamp(0.4rem, 2vw, 1rem);
+    --title-size: clamp(1rem, 3vw, 1.4rem);
+    --h2-size: clamp(0.9rem, 2.2vw, 1.2rem);
+    --body-size: clamp(0.65rem, 1vw, 0.85rem);
+  }
+}
+@media (max-width: 600px) {
+  :root { --title-size: clamp(1.3rem, 7vw, 2.2rem); }
+  .grid { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.2s !important;
+  }
+  html { scroll-behavior: auto; }
+}
+
+/* ===========================================
+   BASE STYLES
+   =========================================== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: var(--font-body);
+  font-weight: 400;
+  color: var(--text-primary);
+  background: var(--bg-primary);
+}
+
+/* ===========================================
+   ANIMATIONS
+   =========================================== */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity var(--duration) var(--ease-out-expo),
+              transform var(--duration) var(--ease-out-expo);
+}
+.slide.visible .reveal { opacity: 1; transform: translateY(0); }
+.reveal:nth-child(1) { transition-delay: 0.1s; }
+.reveal:nth-child(2) { transition-delay: 0.2s; }
+.reveal:nth-child(3) { transition-delay: 0.3s; }
+.reveal:nth-child(4) { transition-delay: 0.4s; }
+.reveal:nth-child(5) { transition-delay: 0.5s; }
+.reveal:nth-child(6) { transition-delay: 0.6s; }
+.reveal:nth-child(7) { transition-delay: 0.7s; }
+.reveal:nth-child(8) { transition-delay: 0.8s; }
+
+.reveal-scale {
+  opacity: 0;
+  transform: scale(0.9);
+  transition: opacity 0.6s var(--ease-out-expo),
+              transform 0.6s var(--ease-out-expo);
+}
+.slide.visible .reveal-scale { opacity: 1; transform: scale(1); }
+
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-50px);
+  transition: opacity 0.6s var(--ease-out-expo),
+              transform 0.6s var(--ease-out-expo);
+}
+.slide.visible .reveal-left { opacity: 1; transform: translateX(0); }
+
+/* ===========================================
+   PROGRESS BAR
+   =========================================== */
+.progress-bar {
+  position: fixed; top: 0; left: 0; height: 3px;
+  background: var(--accent-gold); z-index: 9999;
+  transition: width 0.3s ease;
+}
+
+/* ===========================================
+   NAV DOTS
+   =========================================== */
+.nav-dots {
+  position: fixed; right: clamp(0.8rem, 2vw, 1.5rem);
+  top: 50%; transform: translateY(-50%);
+  display: flex; flex-direction: column; gap: 0.6rem; z-index: 9998;
+}
+.nav-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--border-subtle); cursor: pointer;
+  transition: all 0.3s ease; border: none;
+}
+.nav-dot.active { background: var(--accent-gold); transform: scale(1.5); }
+
+/* ===========================================
+   KEYBOARD HINT
+   =========================================== */
+.keyboard-hint {
+  position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%);
+  font-size: var(--small-size); color: var(--text-secondary);
+  opacity: 0.6; z-index: 9997; font-family: var(--font-body);
+}
+
+/* ===========================================
+   SLIDE 1: COVER — 深蓝电网背景
+   =========================================== */
+.slide-cover {
+  background:
+    radial-gradient(ellipse at 50% 100%, rgba(0, 77, 64, 0.3) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, rgba(200, 164, 78, 0.12) 0%, transparent 50%),
+    var(--data-blue);
+  color: var(--text-light);
+  align-items: center;
+  text-align: center;
+}
+.slide-cover .cover-grid {
+  position: absolute; inset: 0; opacity: 0.06;
+  background-image:
+    linear-gradient(rgba(200,164,78,0.5) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(200,164,78,0.5) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+.slide-cover .cover-radial {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  width: min(80vw, 600px); height: min(80vw, 600px);
+  border-radius: 50%;
+  border: 1px solid rgba(200,164,78,0.15);
+  animation: cover-pulse 4s ease-in-out infinite;
+}
+@keyframes cover-pulse {
+  0%, 100% { transform: translate(-50%,-50%) scale(1); opacity: 0.15; }
+  50% { transform: translate(-50%,-50%) scale(1.05); opacity: 0.3; }
+}
+.slide-cover .cover-inner {
+  position: relative; z-index: 2; max-width: min(85vw, 800px);
+}
+.slide-cover h1 {
+  font-family: var(--font-display);
+  font-size: var(--title-size);
+  font-weight: 900;
+  line-height: 1.15;
+  margin-bottom: clamp(0.6rem, 1.5vw, 1.2rem);
+  background: linear-gradient(135deg, #ffffff 0%, var(--accent-gold) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.slide-cover .cover-sub {
+  font-size: var(--subtitle-size);
+  font-weight: 300;
+  color: rgba(255,255,255,0.7);
+  max-width: min(70vw, 550px); margin: 0 auto;
+  line-height: 1.5;
+}
+.slide-cover .cover-tag {
+  display: inline-block;
+  margin-top: clamp(0.8rem, 1.5vw, 1.5rem);
+  padding: 0.4em 1.2em;
+  border: 1px solid var(--accent-gold);
+  color: var(--accent-gold);
+  font-size: var(--small-size);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* ===========================================
+   SLIDE 2: SITUATION — 白底 + 数据卡
+   =========================================== */
+.slide-situation {
+  background: var(--bg-white);
+}
+.slide-situation .s2-header {
+  border-left: 4px solid var(--accent-teal);
+  padding-left: clamp(0.6rem, 1.2vw, 1rem);
+  margin-bottom: var(--content-gap);
+}
+.slide-situation h2 {
+  font-family: var(--font-display);
+  font-size: var(--h2-size);
+  font-weight: 700;
+  color: var(--accent-teal);
+  line-height: 1.2;
+}
+.slide-situation .data-row {
+  display: flex;
+  gap: clamp(0.6rem, 1.5vw, 1.2rem);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.slide-situation .data-card {
+  flex: 1; min-width: min(100%, 200px);
+  max-width: 320px;
+  background: var(--bg-primary);
+  border-radius: 8px;
+  padding: clamp(0.8rem, 1.5vw, 1.5rem);
+  text-align: center;
+  border-top: 3px solid var(--accent-teal);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+}
+.slide-situation .data-num {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 3.5vw, 2.6rem);
+  font-weight: 900;
+  color: var(--accent-gold);
+  line-height: 1.1;
+}
+.slide-situation .data-unit {
+  font-size: var(--small-size);
+  color: var(--text-secondary);
+  margin-top: 0.3rem;
+}
+.slide-situation .data-desc {
+  margin-top: 0.6rem;
+  font-size: var(--body-size);
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
+/* ===========================================
+   SLIDE 3: COMPLICATION — 左右对比
+   =========================================== */
+.slide-complication {
+  background: var(--bg-white);
+}
+.slide-complication h2 {
+  font-family: var(--font-display);
+  font-size: var(--h2-size);
+  font-weight: 700;
+  color: var(--accent-teal);
+  margin-bottom: var(--content-gap);
+  line-height: 1.2;
+}
+.slide-complication .split {
+  display: flex;
+  gap: clamp(1rem, 2vw, 2rem);
+  flex-wrap: wrap;
+}
+.slide-complication .split-panel {
+  flex: 1; min-width: min(100%, 260px);
+  padding: clamp(1rem, 1.8vw, 2rem);
+  border-radius: 10px;
+}
+.slide-complication .split-panel.left {
+  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+  border-left: 4px solid #2e7d32;
+}
+.slide-complication .split-panel.right {
+  background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+  border-left: 4px solid var(--warn-red);
+}
+.slide-complication .panel-label {
+  font-size: var(--small-size);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.6rem;
+  font-weight: 600;
+}
+.slide-complication .left .panel-label { color: #2e7d32; }
+.slide-complication .right .panel-label { color: var(--warn-red); }
+.slide-complication .panel-stat {
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 2.8vw, 2.2rem);
+  font-weight: 900;
+  margin-bottom: 0.4rem;
+}
+.slide-complication .left .panel-stat { color: #1b5e20; }
+.slide-complication .right .panel-stat { color: var(--warn-red); }
+.slide-complication .panel-body {
+  font-size: var(--body-size);
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+.slide-complication .gap-viz {
+  margin-top: clamp(0.6rem, 1.2vw, 1rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: var(--small-size);
+  color: var(--text-secondary);
+}
+.slide-complication .gap-line {
+  flex: 1; height: 1px;
+  background: repeating-linear-gradient(90deg, var(--warn-red) 0, var(--warn-red) 6px, transparent 6px, transparent 12px);
+  max-width: 100px;
+}
+
+/* ===========================================
+   SLIDE 4: RESOLUTION — 流程图 + 三卡片
+   =========================================== */
+.slide-resolution {
+  background: var(--bg-primary);
+}
+.slide-resolution h2 {
+  font-family: var(--font-display);
+  font-size: var(--h2-size);
+  font-weight: 700;
+  color: var(--accent-teal);
+  margin-bottom: clamp(0.4rem, 0.8vw, 0.8rem);
+  line-height: 1.2;
+}
+.slide-resolution .flow-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.5rem, 1vw, 1rem);
+  margin-bottom: var(--content-gap);
+  flex-wrap: wrap;
+}
+.slide-resolution .flow-node {
+  padding: clamp(0.5rem, 1vw, 0.9rem) clamp(0.8rem, 1.5vw, 1.5rem);
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: var(--body-size);
+}
+.slide-resolution .flow-node.green {
+  background: #e8f5e9; color: #1b5e20; border: 2px solid #4caf50;
+}
+.slide-resolution .flow-node.gold {
+  background: linear-gradient(135deg, var(--accent-gold) 0%, #d4a83a 100%);
+  color: white; font-size: var(--h3-size);
+}
+.slide-resolution .flow-node.blue {
+  background: var(--data-blue); color: white;
+}
+.slide-resolution .flow-arrow {
+  font-size: var(--h3-size); color: var(--accent-gold); font-weight: 700;
+}
+.slide-resolution .card-row {
+  display: flex;
+  gap: clamp(0.5rem, 1.2vw, 1rem);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.slide-resolution .info-card {
+  flex: 1; min-width: min(100%, 180px); max-width: 300px;
+  background: var(--bg-white);
+  border-radius: 8px;
+  padding: clamp(0.6rem, 1.2vw, 1.2rem);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  border-bottom: 3px solid var(--accent-gold);
+}
+.slide-resolution .info-card .card-icon {
+  font-size: clamp(1.2rem, 2vw, 1.8rem); margin-bottom: 0.4rem;
+}
+.slide-resolution .info-card h3 {
+  font-family: var(--font-display);
+  font-size: var(--h3-size);
+  color: var(--accent-teal);
+  margin-bottom: 0.3rem;
+}
+.slide-resolution .info-card p {
+  font-size: var(--small-size);
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+.slide-resolution .info-card .card-stat {
+  font-family: var(--font-display);
+  font-size: clamp(1rem, 1.8vw, 1.4rem);
+  font-weight: 900;
+  color: var(--accent-gold);
+  margin-top: 0.4rem;
+}
+
+/* ===========================================
+   SLIDE 5: EVIDENCE — 四宫格
+   =========================================== */
+.slide-evidence {
+  background: var(--bg-white);
+}
+.slide-evidence h2 {
+  font-family: var(--font-display);
+  font-size: var(--h2-size);
+  font-weight: 700;
+  color: var(--accent-teal);
+  margin-bottom: clamp(0.3rem, 0.6vw, 0.6rem);
+  line-height: 1.2;
+}
+.slide-evidence .subtitle {
+  font-size: var(--body-size);
+  color: var(--text-secondary);
+  margin-bottom: var(--content-gap);
+}
+.slide-evidence .card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(0.5rem, 1.2vw, 1rem);
+  max-width: min(90vw, 900px);
+}
+@media (max-width: 600px) {
+  .slide-evidence .card-grid { grid-template-columns: 1fr; }
+}
+.slide-evidence .ev-card {
+  background: var(--bg-primary);
+  border-radius: 8px;
+  padding: clamp(0.6rem, 1.2vw, 1.2rem);
+  border-left: 4px solid var(--accent-teal);
+  transition: transform 0.3s ease;
+}
+.slide-evidence .ev-card:nth-child(2) { border-left-color: #e67e22; }
+.slide-evidence .ev-card:nth-child(3) { border-left-color: #2980b9; }
+.slide-evidence .ev-card:nth-child(4) { border-left-color: #8e44ad; }
+.slide-evidence .ev-location {
+  font-family: var(--font-display);
+  font-size: var(--h3-size);
+  font-weight: 700;
+  color: var(--accent-teal);
+}
+.slide-evidence .ev-card:nth-child(2) .ev-location { color: #e67e22; }
+.slide-evidence .ev-card:nth-child(3) .ev-location { color: #2980b9; }
+.slide-evidence .ev-card:nth-child(4) .ev-location { color: #8e44ad; }
+.slide-evidence .ev-stat {
+  font-family: var(--font-display);
+  font-size: clamp(0.95rem, 1.6vw, 1.25rem);
+  font-weight: 900;
+  color: var(--accent-gold);
+  margin: 0.3rem 0;
+}
+.slide-evidence .ev-desc {
+  font-size: var(--small-size);
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+/* ===========================================
+   SLIDE 6: CTA — 深蓝渐变
+   =========================================== */
+.slide-cta {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(200, 164, 78, 0.25) 0%, transparent 60%),
+    radial-gradient(ellipse at 50% 100%, rgba(0, 77, 64, 0.4) 0%, transparent 50%),
+    var(--data-blue);
+  color: var(--text-light);
+  align-items: center;
+  text-align: center;
+}
+.slide-cta h2 {
+  font-family: var(--font-display);
+  font-size: var(--h2-size);
+  font-weight: 900;
+  line-height: 1.25;
+  margin-bottom: clamp(0.6rem, 1.2vw, 1rem);
+  color: var(--accent-gold);
+  max-width: min(80vw, 650px);
+}
+.slide-cta .cta-body {
+  font-size: var(--body-size);
+  color: rgba(255,255,255,0.75);
+  max-width: min(75vw, 560px);
+  line-height: 1.6;
+  margin-bottom: clamp(1rem, 2vw, 2rem);
+}
+.slide-cta .cta-prompt {
+  display: inline-block;
+  padding: 0.6em 2em;
+  border: 2px solid var(--accent-gold);
+  border-radius: 2em;
+  color: var(--accent-gold);
+  font-size: var(--body-size);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: default;
+}
+.slide-cta .cta-glow {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 35%;
+  background: linear-gradient(to top, rgba(200,164,78,0.12) 0%, transparent 100%);
+  pointer-events: none;
+}
+</style>
+</head>
+<body>
+
+<!-- PROGRESS BAR -->
+<div class="progress-bar" id="progressBar"></div>
+
+<!-- NAV DOTS -->
+<nav class="nav-dots" id="navDots"></nav>
+
+<!-- KEYBOARD HINT -->
+<div class="keyboard-hint">↓ 滚轮 / 方向键翻页</div>
+
+<!--
+  ============================================
+  SLIDE 1: COVER
+  ============================================
+  @SPEAKER-NOTES
+  @时长: 12s
+  @TTS: AI竞争的下半场，拼的不是显卡，是电厂。全球数据中心一年吃掉4850亿度电，中国悄悄布了一张"算电协同"的网。
+  @BGM: dramatic epic technology — 开场冲击，低音渐入
+  @重点: 标题金色渐变大字→副标题淡入→封面标签弹性入场
+  @转场: crossfade + 金色光晕擦除
+-->
+<section class="slide slide-cover">
+  <div class="cover-grid"></div>
+  <div class="cover-radial"></div>
+  <div class="slide-content cover-inner">
+    <h1 class="reveal">AI竞争的下半场<br/>拼的不是显卡，是电厂</h1>
+    <p class="cover-sub reveal">全球数据中心一年吃掉4850亿度电<br/>中国悄悄布了一张「算电协同」的网</p>
+    <span class="cover-tag reveal-scale">算电协同 · 2026新基建</span>
+  </div>
+</section>
+
+<!--
+  ============================================
+  SLIDE 2: SITUATION — 算力狂飙，电网告急
+  ============================================
+  @SPEAKER-NOTES
+  @时长: 28s
+  @TTS: 先看一组数字。2025年，全球数据中心用电量达到4850亿度，其中AI数据中心用电同比暴增50%。五大科技公司年度资本开支超过4000亿美元，2026年预计还要再增75%。而在中国，智算总规模已达78万PFLOPS，全球第二，"十四五"以来算力用电年均增速超过10%。一句话总结：算力在狂飙，电网在告急。
+  @BGM: corporate tension ambient — 紧张节奏，数据堆叠感
+  @重点: 三张数据卡片依次弹出(back.out弹性)，数字用金色强调
+  @转场: slide-left + 深青遮罩
+-->
+<section class="slide slide-situation">
+  <div class="slide-content">
+    <div class="s2-header reveal">
+      <h2>全球AI算力每12个月翻一倍<br/>电力系统快跟不上了</h2>
+    </div>
+    <div class="data-row">
+      <div class="data-card reveal">
+        <div class="data-num">4850<span style="font-size:0.5em">亿度</span></div>
+        <div class="data-unit">2025年全球数据中心用电量</div>
+        <div class="data-desc">AI数据中心用电同比<strong style="color:var(--warn-red)">暴增50%</strong></div>
+      </div>
+      <div class="data-card reveal">
+        <div class="data-num">$4000<span style="font-size:0.5em">亿+</span></div>
+        <div class="data-unit">五大科技公司2025资本开支</div>
+        <div class="data-desc">2026年预计再增<strong style="color:var(--accent-gold)">75%</strong></div>
+      </div>
+      <div class="data-card reveal">
+        <div class="data-num">78万<span style="font-size:0.5em">PFLOPS</span></div>
+        <div class="data-unit">中国智算总规模 · 全球第二</div>
+        <div class="data-desc">算力用电年均增速<strong style="color:var(--warn-red)">超10%</strong></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!--
+  ============================================
+  SLIDE 3: COMPLICATION — 电费吃掉一半利润
+  ============================================
+  @SPEAKER-NOTES
+  @时长: 35s
+  @TTS: 但一个残酷的事实是：电力已经占数据中心运营成本的57%。中国西部有最便宜的风电和光伏，绿电成本只要几毛钱一度——但电网输送有瓶颈，"有电送不出"。与此同时，美国弗吉尼亚、俄勒冈等数据中心密集区，电网压力指数已超过0.25的高危线，价值640亿美元的数据中心项目被延迟甚至叫停。一边是便宜绿电送不出去，一边是高密度算力把电网压垮。这就是今天AI产业最大的结构性矛盾。
+  @BGM: corporate tension ambient — 持续紧张
+  @重点: 左右对比面板依次滑入，57%红色数字闪烁强调，中间断裂线动画
+  @转场: 金色竖线wipe + dissolve
+-->
+<section class="slide slide-complication">
+  <div class="slide-content">
+    <h2 class="reveal">电力占数据中心成本57%<br/>最便宜的绿电却在千里之外</h2>
+    <div class="split">
+      <div class="split-panel left reveal-left">
+        <div class="panel-label">● 西部 · 能源端</div>
+        <div class="panel-stat">几毛钱/度</div>
+        <div class="panel-body">风电、光伏资源丰富，绿电成本极低。但跨区输送通道有限，清洁能源白白弃掉。</div>
+      </div>
+      <div class="split-panel right reveal" style="transition-delay:0.3s">
+        <div class="panel-label">● 东部 · 算力端</div>
+        <div class="panel-stat">57% 成本是电</div>
+        <div class="panel-body">数据中心密集，电网压力指数超0.25高危线。美国640亿美元项目被延迟或叫停。</div>
+      </div>
+    </div>
+    <div class="gap-viz reveal" style="transition-delay:0.6s">
+      <span>西部绿电</span>
+      <span class="gap-line"></span>
+      <span>❌ 送不出</span>
+      <span class="gap-line"></span>
+      <span>东部算力</span>
+    </div>
+  </div>
+</section>
+
+<!--
+  ============================================
+  SLIDE 4: RESOLUTION — 算电协同
+  ============================================
+  @SPEAKER-NOTES
+  @时长: 38s
+  @TTS: 中国拿出了一套解法，叫做"算电协同"。2026年，这个词被写入了政府工作报告。十五五规划纲要也明确提出：推动绿色电力与算力协同布局。核心逻辑两条：一是"以电强算"——绿电直供给数据中心，把电价打到0.36元一度，让算力用得起；二是"以算促电"——算力任务可以像空调一样参与电网调峰，哪家电价低就去哪家算。宁夏中卫已经跑通了：200万千瓦新能源项目，年供绿电22.9亿度，新建数据中心绿电占比超80%。
+  @BGM: industrial rhythmic percussion — 推进节奏
+  @重点: 流程图三个节点依次点亮→三张卡片弹性入场(back.out 1.5)→电价0.36数字闪烁
+  @转场: 卡片翻页效果 + dissolve
+-->
+<section class="slide slide-resolution">
+  <div class="slide-content">
+    <h2 class="reveal">中国拿出了一套解法：<br/>让算力追着绿电跑</h2>
+    <div class="flow-row reveal">
+      <div class="flow-node green">⚡ 绿电</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-node gold">算电协同</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-node blue">🖥 算力</div>
+    </div>
+    <div class="card-row">
+      <div class="info-card reveal">
+        <div class="card-icon">📋</div>
+        <h3>顶层设计</h3>
+        <p>写入2026年政府工作报告<br/>十五五规划明确协同布局</p>
+        <div class="card-stat">国家战略</div>
+      </div>
+      <div class="info-card reveal">
+        <div class="card-icon">🔌</div>
+        <h3>以电强算</h3>
+        <p>绿电直供降成本<br/>电价低至几毛钱一度</p>
+        <div class="card-stat">0.36元/度</div>
+      </div>
+      <div class="info-card reveal">
+        <div class="card-icon">🔄</div>
+        <h3>以算促电</h3>
+        <p>算力负载参与电网调峰<br/>"哪里电价低就去哪算"</p>
+        <div class="card-stat">算随电动</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!--
+  ============================================
+  SLIDE 5: EVIDENCE — 四地案例
+  ============================================
+  @SPEAKER-NOTES
+  @时长: 40s
+  @TTS: 从沙漠到山区，绿电正在变成算力。宁夏中卫，大唐200万千瓦新能源项目，年供绿电22.9亿度，新建数据中心绿电占比超80%。贵州贵安，20多家数据中心持续建设，方圆200公里内50多座清洁能源电厂，每天可支撑100个千亿级大模型同时训练。内蒙古和林格尔，风光储算实现实时联动，绿电直供到户电价低至0.36元一度，一度几毛钱的绿电变成算力后，价值翻了几十倍。还有上海和杭州，24家智算中心已接入虚拟电厂，累计参与调峰19次。算电协同，已经不是概念，是正在发生的事实。
+  @BGM: emotional dramatic — 渐强，叙事推进
+  @重点: 四张卡片依次滑入，金色数据数字逐个弹跳，中国地图背景淡色标注四点
+  @转场: 金色光芒从底部升起 + crossfade 到CTA
+-->
+<section class="slide slide-evidence">
+  <div class="slide-content">
+    <h2 class="reveal">一度几毛钱的绿电<br/>变成算力后价值翻几十倍</h2>
+    <p class="subtitle reveal">从沙漠到山区，四个正在发生的真实案例</p>
+    <div class="card-grid">
+      <div class="ev-card reveal">
+        <div class="ev-location">🏜 宁夏中卫</div>
+        <div class="ev-stat">22.9亿度/年 · 绿电占比＞80%</div>
+        <div class="ev-desc">200万千瓦新能源项目直供云基地，电价锁定0.36元/度</div>
+      </div>
+      <div class="ev-card reveal">
+        <div class="ev-location">⛰ 贵州贵安</div>
+        <div class="ev-stat">20+数据中心 · 50+清洁电厂</div>
+        <div class="ev-desc">方圆200公里清洁能源圈，可支撑100个千亿大模型同时训练</div>
+      </div>
+      <div class="ev-card reveal">
+        <div class="ev-location">🌬 内蒙和林格尔</div>
+        <div class="ev-stat">风光储算 · 实时联动</div>
+        <div class="ev-desc">全国首个绿电直供国家级示范，到户电价0.36元/度</div>
+      </div>
+      <div class="ev-card reveal">
+        <div class="ev-location">🌊 上海·杭州</div>
+        <div class="ev-stat">24家接入 · 19次调峰</div>
+        <div class="ev-desc">智算中心参与虚拟电厂，算力变成电网的"调节器"</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!--
+  ============================================
+  SLIDE 6: CTA
+  ============================================
+  @SPEAKER-NOTES
+  @时长: 16s
+  @TTS: 当AI的竞争从拼显卡变成拼电厂，中国正在解决那个最难的问题。算电协同不是选择题，而是必答题。谁先解决"用得起、用得上"的清洁算力，谁就掌握了AI时代的能源主动权。你怎么看？算力加绿电的双向奔赴，会成为中国AI的新优势吗？评论区聊聊。
+  @BGM: emotional dramatic — 渐弱收束 + 余韵
+  @重点: 标题金色大字居中，正文淡入，CTA按钮弹性入场+呼吸光晕
+  @转场: 淡出至黑
+-->
+<section class="slide slide-cta">
+  <div class="cta-glow"></div>
+  <div class="slide-content" style="position:relative;z-index:2">
+    <h2 class="reveal">当AI竞争从拼显卡变成拼电厂<br/>中国正在解决那个最难的问题</h2>
+    <p class="cta-body reveal">
+      算电协同不是选择题，而是必答题。<br/>
+      谁先解决"用得起、用得上"的清洁算力，<br/>
+      谁就掌握AI时代的能源主动权。
+    </p>
+    <span class="cta-prompt reveal-scale">💬 你怎么看？评论区聊聊</span>
+  </div>
+</section>
+
+<script>
+/* ===========================================
+   SLIDE PRESENTATION CONTROLLER
+   =========================================== */
+class SlidePresentation {
+  constructor() {
+    this.slides = document.querySelectorAll('.slide');
+    this.totalSlides = this.slides.length;
+    this.currentSlide = 0;
+    this.isScrolling = false;
+    this.touchStartY = 0;
+    this.setupIntersectionObserver();
+    this.setupKeyboardNav();
+    this.setupWheelNav();
+    this.setupTouchNav();
+    this.setupProgressBar();
+    this.setupNavDots();
+  }
+
+  setupIntersectionObserver() {
+    const options = { threshold: 0.5 };
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          const idx = Array.from(this.slides).indexOf(entry.target);
+          if (idx >= 0) {
+            this.currentSlide = idx;
+            this.updateNavDots();
+            this.updateProgressBar();
+          }
+        }
+      });
+    }, options);
+    this.slides.forEach(slide => observer.observe(slide));
+  }
+
+  goToSlide(index) {
+    if (index < 0 || index >= this.totalSlides || this.isScrolling) return;
+    this.isScrolling = true;
+    this.slides[index].scrollIntoView({ behavior: 'smooth' });
+    setTimeout(() => { this.isScrolling = false; }, 600);
+  }
+
+  setupKeyboardNav() {
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ') {
+        e.preventDefault();
+        this.goToSlide(this.currentSlide + 1);
+      } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+        e.preventDefault();
+        this.goToSlide(this.currentSlide - 1);
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        this.goToSlide(0);
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        this.goToSlide(this.totalSlides - 1);
+      }
+    });
+  }
+
+  setupWheelNav() {
+    let wheelTimeout;
+    document.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      if (wheelTimeout) return;
+      wheelTimeout = setTimeout(() => { wheelTimeout = null; }, 800);
+      if (e.deltaY > 30) this.goToSlide(this.currentSlide + 1);
+      else if (e.deltaY < -30) this.goToSlide(this.currentSlide - 1);
+    }, { passive: false });
+  }
+
+  setupTouchNav() {
+    document.addEventListener('touchstart', (e) => {
+      this.touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+    document.addEventListener('touchend', (e) => {
+      const diff = this.touchStartY - e.changedTouches[0].clientY;
+      if (Math.abs(diff) > 40) {
+        if (diff > 0) this.goToSlide(this.currentSlide + 1);
+        else this.goToSlide(this.currentSlide - 1);
+      }
+    }, { passive: true });
+  }
+
+  setupProgressBar() {
+    this.progressBar = document.getElementById('progressBar');
+  }
+
+  updateProgressBar() {
+    if (this.progressBar) {
+      const pct = (this.currentSlide / (this.totalSlides - 1)) * 100;
+      this.progressBar.style.width = pct + '%';
+    }
+  }
+
+  setupNavDots() {
+    this.navDotsContainer = document.getElementById('navDots');
+    this.navDotsContainer.innerHTML = '';
+    for (let i = 0; i < this.totalSlides; i++) {
+      const dot = document.createElement('button');
+      dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+      dot.setAttribute('aria-label', 'Slide ' + (i + 1));
+      dot.addEventListener('click', () => this.goToSlide(i));
+      this.navDotsContainer.appendChild(dot);
+    }
+  }
+
+  updateNavDots() {
+    const dots = this.navDotsContainer.querySelectorAll('.nav-dot');
+    dots.forEach((dot, i) => {
+      dot.classList.toggle('active', i === this.currentSlide);
+    });
+  }
+}
+
+new SlidePresentation();
+</script>
+</body>
+</html>
