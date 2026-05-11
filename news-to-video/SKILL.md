@@ -249,12 +249,67 @@ TTS朗读文本第二段。
 ```
 总时长目标：60-90s（抖音竖版）或 2-3min（B站横版）。
 
+### 5.5 生成TTS音频（edge-tts）
+
+**中文视频必须使用 edge-tts**，kokoro-onnx 中文效果差且有 token 长度限制。
+
+#### 安装
+```bash
+pip install edge-tts
+```
+
+#### 选语音
+```bash
+edge-tts --list-voices | grep zh-CN
+```
+
+推荐语音（按视频风格选择）：
+
+| 语音 | 风格 | 适用场景 |
+|------|------|---------|
+| `zh-CN-YunjianNeural` | Passion | 科技/商业/激情叙事 |
+| `zh-CN-YunyangNeural` | Professional | 政策解读/严肃分析 |
+| `zh-CN-XiaoxiaoNeural` | Warm | 社会议题/人文关怀 |
+| `zh-CN-YunxiNeural` | Lively | 轻松/娱乐/年轻向 |
+
+#### 逐句生成
+
+**核心原则：每句话单独生成一个MP3，不要一次性生成整段长文本。** Edge-tts 对长文本会自动加速，导致字幕难以对齐。
+
+将 tts_script.md 中的文本按句子拆分，每句一个mp3：
+```bash
+edge-tts --voice "zh-CN-YunjianNeural" --text "第一句话。" --write-media "e01.mp3"
+edge-tts --voice "zh-CN-YunjianNeural" --text "第二句话。" --write-media "e02.mp3"
+```
+
+可并行生成（每批4个），大幅提速。
+
+#### 合并音频
+```bash
+# 记录每段时长
+for f in e*.mp3; do
+  d=$(ffprobe -v quiet -show_entries format=duration -of csv=p=0 "$f")
+  printf "%s: %6.2fs\n" "$f" "$d"
+done
+
+# 用ffmpeg concat合并
+for f in e01.mp3 e02.mp3 ...; do echo "file '$PWD/$f'"; done > list.txt
+ffmpeg -f concat -safe 0 -i list.txt -c copy output.mp3
+```
+
+#### 为什么不一次性生成
+- 长文本会自动加速，单句生成语速更自然
+- 逐句生成后每段时间戳精确可知，作为字幕锚点
+- 单句文件可单独重新生成，不需重跑全部
+
 ### 自检
 - [ ] HTML幻灯片每页内容不超过视口（无滚动条）
 - [ ] 配色与新闻类型匹配
 - [ ] 每页有演讲备注（@时长 @TTS @BGM @重点 @转场）
 - [ ] BGM下载3-6首，覆盖不同情绪段
 - [ ] tts_script.md 时间轴完整覆盖所有页
+- [ ] TTS使用 edge-tts 逐句生成（非 kokoro-onnx）
+- [ ] 每段TTS时长已记录，用于字幕锚点计算
 
 ---
 
@@ -284,9 +339,17 @@ composition/
 
 #### 字幕
 - **文本必须来自TTS脚本**，不能来自PPT幻灯片文字
+- **逐句锚点法**（核心方法）：每段TTS音频的确切起止时间是已知的锚点。字幕时间 = 所在句子的音频起始时间 + 该短语在句内的字符比例偏移
+  ```
+  // 例：e06 "这意味着什么？不再是人类写代码造AI，而是AI写代码造更强的AI。" (7.92s, 起始32.01s)
+  // "这意味着什么" 占句首6/29≈20% → 32.01 + 0.3 = 32.3s
+  // "不再是人类写代码造AI" 占10/29≈34% → 32.01 + 2.2 = 34.2s
+  // "而是AI写代码造更强的AI" 占13/29≈45% → 32.01 + 5.2 = 37.2s
+  ```
 - **停留时间按文本长度**：2-5字→2s, 6-12字→2-2.8s, 13-20字→2.8-3.5s, 20+字→3.5-4s
 - 关键短语独立成条（如"囤算力"，不合并到前后句）
 - 每条字幕有0.25s淡入淡出，前后0.25s重叠
+- **常见错误：字幕整体偏移** — 如果后半部分字幕延迟2-4秒，通常是某个句子的起始锚点算错了。回到逐句时长表，核对每句的累积起始时间
 
 #### BGM
 - 文件必须实体复制，symlink在渲染时404
@@ -389,12 +452,24 @@ ffmpeg -i output.mp4 -af "volumedetect" -f null - 2>&1 | grep mean_volume
 
 ---
 
-## 实战案例：AI万亿账单
+## 实战案例
 
-完整走通的一期，可作为参考：
+### 案例1：AI万亿账单
 
 - **选题**：「80%的钱流向AI，但谁来买单？」（36氪，P0）
 - **框架**：PAS扩展版（9页：封面+Problem+军备竞赛全景+Agitate+单位经济学陷阱+Solve+Evidence+反方观点+CTA）
 - **配色**：深蓝#050d1a + 金色#c8a44e
 - **视频**：3分钟，1920×1080，73条字幕，5轨BGM，8种过渡
 - **关键踩坑**：静音检测误判场景边界（改用TTS脚本×扩展因子）、字幕文本来自PPT而非TTS（改为TTS脚本原文）、BGM symlink 404（改为实体文件）
+
+### 案例2：Anthropic万亿IPO（抖音竖版）
+
+- **选题**：「史上最大规模IPO逼近，超越SpaceX，28年AI自我迭代，智能爆炸倒计时」（36氪，P0）
+- **框架**：SCR（麦肯锡）7页（封面+Situation+Complication+Resolution+Evidence+时代拐点+CTA）
+- **配色**：深蓝#050d1a + 金色#c8a44e
+- **TTS**：edge-tts `zh-CN-YunjianNeural`（激情男声），逐句生成14段，总86.3s
+- **视频**：86秒，1080×1920，32条字幕，4轨BGM，6次场景过渡
+- **关键踩坑**：
+  - kokoro-onnx 中文效果差且有 token 长度限制 → 改用 edge-tts 逐句生成
+  - 字幕后半部分延迟2-4秒：场景5的"整个科技商业史找不到第二个先例"放在了58.6s，但实际所在音频段起始于54.35s → 用逐句锚点法修正
+  - GSAP从cdnjs加载超时 → 不影响渲染，可忽略或改用本地文件
