@@ -20,7 +20,10 @@
 | [`pixabay-music-download`](pixabay-music-download/SKILL.md) | 工具技能 | Pixabay 免版税 BGM 搜索与下载 |
 
 ---
-
+## 视频教程
+B站：【技能演示流程】 https://www.bilibili.com/video/BV1qU5E6pE8o/?share_source=copy_web&vd_source=5d4ee0c8740da36fe879690b1630d285
+## skill创作过程
+B站：【从一个观点到视频全流程展示】 https://www.bilibili.com/video/BV1KQRRBBEv3/?share_source=copy_web&vd_source=5d4ee0c8740da36fe879690b1630d285
 ## 快速开始
 
 在 Claude Code 中输入：
@@ -49,7 +52,7 @@ cp -r pixabay-music-download ~/.claude/skills/pixabay-music-download
 
 | 技能 | 用途 |
 |------|------|
-| `smart-search` | 36氪热榜 + 微博热搜采集 |
+| `opencli:smart-search` | 36氪热榜 + 微博热搜采集 |
 | `frontend-slides` | 动画 HTML 幻灯片生成 |
 | `hyperframes` | HTML 视频渲染引擎（含 CLI） |
 | `planning-with-files:plan-zh` | 三文件规划管理 |
