@@ -57,6 +57,7 @@ cp -r pixabay-music-download ~/.claude/skills/pixabay-music-download
 | `hyperframes` | HTML 视频渲染引擎（含 CLI） |
 | `planning-with-files:plan-zh` | 三文件规划管理 |
 
+> 注意：opencli要安装浏览器插件，如果没有对应的cli开放出来，他会借助浏览器桥接进行查询
 ### 环境要求
 
 ```bash
