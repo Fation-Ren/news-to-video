@@ -38,6 +38,20 @@ B站：【从一个观点到视频全流程展示】 https://www.bilibili.com/vi
 
 ## 安装
 
+### 一键安装（推荐）
+
+```bash
+# macOS
+chmod +x install.sh && ./install.sh
+
+# Windows (PowerShell)
+powershell -ExecutionPolicy Bypass -File install.ps1
+```
+
+脚本自动完成：系统检测 → 依赖安装 → Claude Code → edge-tts → opencli → 技能部署 → 验证。
+
+### 手动安装
+
 将 3 个技能目录复制到 Claude Code skills 路径：
 
 ```bash
@@ -48,21 +62,31 @@ cp -r pixabay-music-download ~/.claude/skills/pixabay-music-download
 
 ### 外部依赖
 
-以下技能需要单独安装：
+以下技能需要通过 Claude Code 安装：
+
+```bash
+claude
+/install smart-search
+/install frontend-slides
+/install hyperframes
+/install planning-with-files:plan-zh
+```
 
 | 技能 | 用途 |
 |------|------|
-| `opencli:smart-search` | 36氪热榜 + 微博热搜采集 |
+| `smart-search` | 36氪热榜 + 微博热搜采集 |
 | `frontend-slides` | 动画 HTML 幻灯片生成 |
 | `hyperframes` | HTML 视频渲染引擎（含 CLI） |
 | `planning-with-files:plan-zh` | 三文件规划管理 |
 
-> 注意：opencli要安装浏览器插件，如果没有对应的cli开放出来，他会借助浏览器桥接进行查询
+> 注意：opencli 需要安装 Chrome 浏览器扩展，如无对应 CLI 开放出来，会借助浏览器桥接进行查询。
+
 ### 环境要求
 
 ```bash
 npx hyperframes --version   # HyperFrames CLI
 ffmpeg -version             # 音频处理 + 视频验证
+pip install edge-tts        # 中文 TTS 语音合成
 ```
 
 ---
