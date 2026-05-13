@@ -31,10 +31,36 @@ news-to-video/
 ├── README.md
 ├── CLAUDE.md
 ├── LICENSE
+├── install.sh
+├── install.ps1
 ├── news-to-video/
-│   └── SKILL.md
+│   ├── SKILL.md
+│   ├── references/
+│   │   ├── stage1-news.md
+│   │   ├── stage2-topic.md
+│   │   ├── stage3-framework.md
+│   │   ├── stage4-copywriting.md
+│   │   ├── stage5-ppt-creation.md
+│   │   ├── stage6-video-composition.md
+│   │   ├── stage7-publishing.md
+│   │   └── case-studies.md
+│   └── scripts/
+│       ├── download_bgm.py
+│       ├── fill_composition.py
+│       ├── tts-generate.sh
+│       ├── tts-timing.sh
+│       └── video-verify.sh
 ├── ppt-to-video/
-│   └── SKILL.md
+│   ├── SKILL.md
+│   ├── references/
+│   │   ├── composition-rules.md
+│   │   ├── transition-patterns.md
+│   │   ├── pre-render-checklist.md
+│   │   └── common-issues.md
+│   └── scripts/
+│       ├── composition-template.html
+│       ├── prepare-audio.sh
+│       └── preflight-check.sh
 ├── pixabay-music-download/
 │   └── SKILL.md
 └── examples/

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width={{WIDTH}}, height={{HEIGHT}}">
+<title>{{TITLE}}</title>
+<style>
+/* ============================================
+   COMPOSITION CSS — 从幻灯片配色继承
+   ============================================ */
+body {
+  margin: 0; padding: 0;
+  width: {{WIDTH}}px; height: {{HEIGHT}}px;
+  overflow: hidden;
+  background: {{BG_COLOR}};
+  font-family: 'Noto Sans SC', 'PingFang SC', sans-serif;
+}
+#composition {
+  position: relative;
+  width: {{WIDTH}}px; height: {{HEIGHT}}px;
+  overflow: hidden;
+}
+.scene {
+  position: absolute;
+  top: 0; left: 0;
+  width: {{WIDTH}}px; height: {{HEIGHT}}px;
+  display: flex; flex-direction: column;
+  justify-content: center; align-items: center;
+  overflow: hidden;
+}
+/* Grid pattern overlay */
+.scene::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba({{ACCENT_RGB}},0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba({{ACCENT_RGB}},0.03) 1px, transparent 1px);
+  background-size: 80px 80px;
+  pointer-events: none; z-index: 0;
+}
+/* Ambient orbs */
+.orb {
+  position: absolute; border-radius: 50%;
+  filter: blur(120px); opacity: 0.12;
+  pointer-events: none;
+}
+.orb-gold { background: {{ACCENT_COLOR}}; }
+.orb-blue { background: {{BLUE_COLOR}}; }
+.orb-cyan { background: {{CYAN_COLOR}}; }
+/* Typography */
+.scene-title {
+  font-weight: 900; font-size: 88px;
+  color: {{TEXT_COLOR}};
+  line-height: 1.3; text-align: center;
+  position: relative; z-index: 1; max-width: 900px;
+}
+.scene-subtitle {
+  font-size: 36px; color: {{SUB_TEXT_COLOR}};
+  text-align: center; position: relative; z-index: 1;
+  max-width: 800px; line-height: 1.5;
+}
+/* Caption */
+.caption {
+  position: absolute; bottom: 180px; left: 50%;
+  transform: translateX(-50%);
+  font-size: 40px; font-weight: 700;
+  color: #ffffff; text-align: center;
+  background: rgba({{BG_RGB}},0.85);
+  padding: 18px 40px; border-radius: 12px;
+  max-width: 900px; z-index: 10; opacity: 0;
+  line-height: 1.4;
+  border: 1px solid rgba({{ACCENT_RGB}},0.2);
+  text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+}
+/* ============================================
+   PROJECT-SPECIFIC STYLES — 从幻灯片复制
+   ============================================ */
+{{PROJECT_CSS}}
+</style>
+</head>
+<body>
+<div id="composition" data-composition-id="{{COMP_ID}}" data-start="0" data-width="{{WIDTH}}" data-height="{{HEIGHT}}">
+  <!-- TTS Audio -->
+  <audio id="tts" data-start="0" data-duration="{{TTS_DURATION}}" src="output.mp3"></audio>
+  <!-- BGM Audio Tracks -->
+{{BGM_TAGS}}
+  <!-- Scene HTML — 从幻灯片复制视觉内容 -->
+{{SCENE_HTML}}
+  <!-- Caption DIVs -->
+{{CAPTION_DIVS}}
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+/* ============================================
+   TIMING — 从 timing_reference.md 锚点表复制
+   ============================================ */
+var T = {{T_VARIABLE}};
+
+/* ============================================
+   CAPTION DATA — 从 timing_reference.md 字幕拆分复制
+   ============================================ */
+var caps = {{CAPS_ARRAY}};
+
+/* ============================================
+   GSAP TIMELINE
+   ============================================ */
+var tl = gsap.timeline({ paused:false, defaults:{ overwrite:"auto" } });
+
+/* --- Captions engine --- */
+caps.forEach(function(c, i) {
+  tl.fromTo("#cap"+i, { opacity:0, y:16 }, { opacity:1, y:0, duration:0.25, ease:"power2.out" }, c.t);
+  tl.to("#cap"+i, { opacity:0, duration:0.25, ease:"power2.in" }, c.t + c.d - 0.25);
+  tl.set("#cap"+i, { opacity:0, visibility:"hidden" }, c.t + c.d + 0.05);
+});
+
+/* --- Scene transitions — 从 transition-patterns.md 选取模式 --- */
+{{TRANSITIONS}}
+
+/* --- Entry animations — 每场景入场 --- */
+{{ENTRY_ANIMATIONS}}
+
+/* --- Register --- */
+window.__timelines = window.__timelines || {};
+window.__timelines["{{COMP_ID}}"] = tl;
+</script>
+</body>
+</html>
